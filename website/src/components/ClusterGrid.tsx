@@ -1,4 +1,4 @@
-import type { Cluster } from '../types';
+import { useEffect, useMemo, useRef } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useAppStore } from '../lib/store';
@@ -7,11 +7,27 @@ import { ClusterCard as MuiClusterCard } from './MuiCards';
 
 export function ClusterGrid() {
     const { clusters, topics, selectedSubject, selectedCluster, selectCluster, selectSubject, sidebarOpen } = useAppStore();
+    const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-    let displayClusters = clusters;
-    if (selectedSubject) {
-        displayClusters = getClustersBySubject(clusters, selectedSubject);
-    }
+    const displayClusters = useMemo(() => {
+        if (!selectedSubject) {
+            return clusters;
+        }
+        return getClustersBySubject(clusters, selectedSubject);
+    }, [clusters, selectedSubject]);
+
+    useEffect(() => {
+        if (!selectedCluster) {
+            return;
+        }
+
+        const selectedKey = `${selectedCluster.subject}-${selectedCluster.domain}-${selectedCluster.ageRangeStart}`;
+        const selectedCard = cardRefs.current.get(selectedKey);
+
+        if (selectedCard) {
+            selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+        }
+    }, [selectedCluster, displayClusters]);
 
     if (displayClusters.length === 0) {
         return (
@@ -91,15 +107,26 @@ export function ClusterGrid() {
                         selectedCluster?.subject === cluster.subject &&
                         selectedCluster?.domain === cluster.domain &&
                         selectedCluster?.ageRangeStart === cluster.ageRangeStart;
+                    const clusterKey = `${cluster.subject}-${cluster.domain}-${cluster.ageRangeStart}`;
 
                     return (
-                        <MuiClusterCard
-                            key={`${cluster.subject}-${cluster.domain}-${cluster.ageRangeStart}-${idx}`}
-                            cluster={cluster}
-                            topicCount={topicsInCluster.length}
-                            isSelected={isSelected}
-                            onClick={() => selectCluster(cluster)}
-                        />
+                        <Box
+                            key={`${clusterKey}-${idx}`}
+                            ref={(node: HTMLDivElement | null) => {
+                                if (node) {
+                                    cardRefs.current.set(clusterKey, node);
+                                } else {
+                                    cardRefs.current.delete(clusterKey);
+                                }
+                            }}
+                        >
+                            <MuiClusterCard
+                                cluster={cluster}
+                                topicCount={topicsInCluster.length}
+                                isSelected={isSelected}
+                                onClick={() => selectCluster(cluster)}
+                            />
+                        </Box>
                     );
                 })}
             </Box>

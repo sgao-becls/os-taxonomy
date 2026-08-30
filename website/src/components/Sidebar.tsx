@@ -8,9 +8,10 @@ import { getAgeLabel } from '../lib/colors';
 interface DependencyListProps {
     dependencies: { strength: 'hard' | 'soft'; topic: Topic }[];
     title: string;
+    onSelect: (topic: Topic, clusterInfo: { subject: string; domain: string; ageRangeStart: number }) => void;
 }
 
-function DependencyList({ dependencies, title }: DependencyListProps) {
+function DependencyList({ dependencies, title, onSelect }: DependencyListProps) {
     const [expanded, setExpanded] = useState(false);
     const hardDeps = dependencies.filter(d => d.strength === 'hard');
     const softDeps = dependencies.filter(d => d.strength === 'soft');
@@ -39,7 +40,7 @@ function DependencyList({ dependencies, title }: DependencyListProps) {
             </Button>
 
             {expanded && (
-                <Box sx={{ mt: 2, maxHeight: '24rem', overflowY: 'auto' }}>
+                <Box sx={{ mt: 2, maxHeight: '24rem', overflowY: 'auto', overflowX: 'hidden' }}>
                     {hardDeps.length > 0 && (
                         <Box sx={{ mb: 2 }}>
                             <Typography variant="caption" sx={{ fontWeight: 600, color: 'error.main', mb: 1 }}>
@@ -49,6 +50,7 @@ function DependencyList({ dependencies, title }: DependencyListProps) {
                                 {hardDeps.map(dep => (
                                     <Box
                                         key={dep.topic.id}
+                                        onClick={() => onSelect(dep.topic, { subject: dep.topic.subject, domain: dep.topic.domain, ageRangeStart: dep.topic.ageRangeStart })}
                                         sx={{
                                             p: 1.5,
                                             bgcolor: 'background.paper',
@@ -56,10 +58,16 @@ function DependencyList({ dependencies, title }: DependencyListProps) {
                                             border: '1px solid',
                                             borderColor: 'error.light',
                                             mb: 1,
-                                            '&:hover': { bgcolor: 'error.lighter' }
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            overflow: 'hidden',
+                                            '&:hover': {
+                                                bgcolor: 'error.lighter',
+                                                borderColor: 'error.main'
+                                            }
                                         }}
                                     >
-                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                             {dep.topic.name}
                                         </Typography>
                                         <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5 }}>
@@ -80,6 +88,7 @@ function DependencyList({ dependencies, title }: DependencyListProps) {
                                 {softDeps.map(dep => (
                                     <Box
                                         key={dep.topic.id}
+                                        onClick={() => onSelect(dep.topic, { subject: dep.topic.subject, domain: dep.topic.domain, ageRangeStart: dep.topic.ageRangeStart })}
                                         sx={{
                                             p: 1.5,
                                             bgcolor: 'background.paper',
@@ -87,10 +96,16 @@ function DependencyList({ dependencies, title }: DependencyListProps) {
                                             border: '1px solid',
                                             borderColor: 'warning.light',
                                             mb: 1,
-                                            '&:hover': { bgcolor: 'warning.lighter' }
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            overflow: 'hidden',
+                                            '&:hover': {
+                                                bgcolor: 'warning.lighter',
+                                                borderColor: 'warning.main'
+                                            }
                                         }}
                                     >
-                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                             {dep.topic.name}
                                         </Typography>
                                         <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5 }}>
@@ -112,10 +127,13 @@ export function Sidebar() {
         selectedCluster,
         selectedTopic,
         topics,
+        clusters,
         topicsById,
         prerequisiteMap,
         dependentMap,
+        selectSubject,
         selectTopic,
+        selectCluster,
         sidebarOpen,
         setSidebarOpen,
     } = useAppStore();
@@ -144,6 +162,23 @@ export function Sidebar() {
             topic: topicsById.get(d.topicId)!,
         })).filter(d => d.topic);
     }, [selectedTopic, dependentMap, topicsById]);
+
+    const handleSelectDependency = (topic: Topic, clusterInfo: { subject: string; domain: string; ageRangeStart: number }) => {
+        console.log('handleSelectDependency called with:', { topic: topic.name, clusterInfo });
+
+        // Keep the grid in sync with the dependency's subject before selecting cluster/topic.
+        selectSubject(clusterInfo.subject);
+
+        const cluster = clusters.find(c =>
+            c.subject === clusterInfo.subject &&
+            c.domain === clusterInfo.domain &&
+            c.ageRangeStart === clusterInfo.ageRangeStart
+        );
+
+        console.log('Found cluster:', cluster);
+        selectCluster(cluster ?? null);
+        selectTopic(topic);
+    };
 
     if (!sidebarOpen) {
         return null;
@@ -201,140 +236,140 @@ export function Sidebar() {
                 {selectedTopic ? (
                     // Topic Details
                     <>
-                        <Box>
-                            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                                <Chip label={selectedTopic.subject} size="small" color="primary" variant="filled" />
-                                <Chip label={getAgeLabel(selectedTopic.ageRangeStart, selectedTopic.ageRangeEnd)} size="small" />
-                            </Box>
-                            <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
-                                {selectedTopic.name}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                {selectedTopic.domain}
-                            </Typography>
+                    <Box>
+                        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                            <Chip label={selectedTopic.subject} size="small" color="primary" variant="filled" />
+                            <Chip label={getAgeLabel(selectedTopic.ageRangeStart, selectedTopic.ageRangeEnd)} size="small" />
                         </Box>
+                        <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
+                            {selectedTopic.name}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {selectedTopic.domain}
+                        </Typography>
+                    </Box>
 
-                        <Divider />
+                    <Divider />
 
+                    <Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                            Description
+                        </Typography>
+                        <Typography variant="body2">
+                            {selectedTopic.description}
+                        </Typography>
+                    </Box>
+
+                    {selectedTopic.evidence.length > 0 && (
                         <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                                Description
+                            <Divider />
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, mt: 2 }}>
+                                Evidence of Mastery
                             </Typography>
-                            <Typography variant="body2">
-                                {selectedTopic.description}
-                            </Typography>
-                        </Box>
-
-                        {selectedTopic.evidence.length > 0 && (
-                            <Box>
-                                <Divider />
-                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, mt: 2 }}>
-                                    Evidence of Mastery
-                                </Typography>
-                                <Box component="ul" sx={{ pl: 2, m: 0 }}>
-                                    {selectedTopic.evidence.map((e, idx) => (
-                                        <Typography
-                                            component="li"
-                                            key={idx}
-                                            variant="body2"
-                                            sx={{ mb: 1, listStyleType: 'disc', color: 'text.secondary' }}
-                                        >
-                                            {e}
-                                        </Typography>
-                                    ))}
-                                </Box>
-                            </Box>
-                        )}
-
-                        {(prerequisites.length > 0 || dependents.length > 0) && (
-                            <Box sx={{ pt: 2 }}>
-                                <Divider />
-                                <Button
-                                    fullWidth
-                                    onClick={() => setShowDeps(!showDeps)}
-                                    sx={{ justifyContent: 'space-between', mt: 2, textTransform: 'none', fontSize: '1rem' }}
-                                >
-                                    <Typography sx={{ fontWeight: 600 }}>Dependencies</Typography>
-                                    <Typography>{showDeps ? '−' : '+'}</Typography>
-                                </Button>
-
-                                {showDeps && (
-                                    <Box sx={{ mt: 2, space: 2 }}>
-                                        <DependencyList dependencies={prerequisites} title="Must Learn First" />
-                                        <DependencyList dependencies={dependents} title="Unlocks Next" />
-                                    </Box>
-                                )}
-                            </Box>
-                        )}
-
-                        <Button
-                            onClick={() => selectTopic(null)}
-                            variant="outlined"
-                            fullWidth
-                            sx={{ mt: 2 }}
-                        >
-                            Back to Cluster
-                        </Button>
-                    </>
-                ) : selectedCluster ? (
-                    // Cluster Details
-                    <>
-                        <Box>
-                            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                                <Chip label={selectedCluster.subject} size="small" color="primary" variant="filled" />
-                                <Chip label={getAgeLabel(selectedCluster.ageRangeStart, selectedCluster.ageRangeStart + 1)} size="small" />
-                            </Box>
-                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                                {selectedCluster.domain}
-                            </Typography>
-                        </Box>
-
-                        <Divider />
-
-                        <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                                Overview
-                            </Typography>
-                            <Typography variant="body2">
-                                {selectedCluster.summary}
-                            </Typography>
-                        </Box>
-
-                        <Divider />
-
-                        <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                                Topics ({topicsInCluster.length})
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, maxHeight: '24rem', overflow: 'y', overflowY: 'auto' }}>
-                                {topicsInCluster.map(topic => (
-                                    <Button
-                                        key={topic.id}
-                                        onClick={() => selectTopic(topic)}
-                                        sx={{
-                                            justifyContent: 'flex-start',
-                                            textAlign: 'left',
-                                            py: 1.5,
-                                            px: 2,
-                                            textTransform: 'none',
-                                            color: 'text.primary',
-                                            bgcolor: 'action.hover',
-                                            '&:hover': { bgcolor: 'action.selected' }
-                                        }}
+                            <Box component="ul" sx={{ pl: 2, m: 0 }}>
+                                {selectedTopic.evidence.map((e, idx) => (
+                                    <Typography
+                                        component="li"
+                                        key={idx}
+                                        variant="body2"
+                                        sx={{ mb: 1, listStyleType: 'disc', color: 'text.secondary' }}
                                     >
-                                        <Box>
-                                            <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
-                                                {topic.name}
-                                            </Typography>
-                                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                                {topic.domain}
-                                            </Typography>
-                                        </Box>
-                                    </Button>
+                                        {e}
+                                    </Typography>
                                 ))}
                             </Box>
                         </Box>
-                    </>
+                    )}
+
+                    {(prerequisites.length > 0 || dependents.length > 0) && (
+                        <Box sx={{ pt: 2 }}>
+                            <Divider />
+                            <Button
+                                fullWidth
+                                onClick={() => setShowDeps(!showDeps)}
+                                sx={{ justifyContent: 'space-between', mt: 2, textTransform: 'none', fontSize: '1rem' }}
+                            >
+                                <Typography sx={{ fontWeight: 600 }}>Dependencies</Typography>
+                                <Typography>{showDeps ? '−' : '+'}</Typography>
+                            </Button>
+
+                            {showDeps && (
+                                <Box sx={{ mt: 2, space: 2 }}>
+                                    <DependencyList dependencies={prerequisites} title="Must Learn First" onSelect={handleSelectDependency} />
+                                    <DependencyList dependencies={dependents} title="Unlocks Next" onSelect={handleSelectDependency} />
+                                </Box>
+                            )}
+                        </Box>
+                    )}
+
+                    <Button
+                        onClick={() => selectTopic(null)}
+                        variant="outlined"
+                        fullWidth
+                        sx={{ mt: 2 }}
+                    >
+                        Back to Cluster
+                    </Button>
+                </>
+                ) : selectedCluster ? (
+                    // Cluster Details
+                    <>
+                    <Box>
+                        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                            <Chip label={selectedCluster.subject} size="small" color="primary" variant="filled" />
+                            <Chip label={getAgeLabel(selectedCluster.ageRangeStart, selectedCluster.ageRangeStart + 1)} size="small" />
+                        </Box>
+                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                            {selectedCluster.domain}
+                        </Typography>
+                    </Box>
+
+                    <Divider />
+
+                    <Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                            Overview
+                        </Typography>
+                        <Typography variant="body2">
+                            {selectedCluster.summary}
+                        </Typography>
+                    </Box>
+
+                    <Divider />
+
+                    <Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                            Topics ({topicsInCluster.length})
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, maxHeight: '24rem', overflow: 'y', overflowY: 'auto' }}>
+                            {topicsInCluster.map(topic => (
+                                <Button
+                                    key={topic.id}
+                                    onClick={() => selectTopic(topic)}
+                                    sx={{
+                                        justifyContent: 'flex-start',
+                                        textAlign: 'left',
+                                        py: 1.5,
+                                        px: 2,
+                                        textTransform: 'none',
+                                        color: 'text.primary',
+                                        bgcolor: 'action.hover',
+                                        '&:hover': { bgcolor: 'action.selected' }
+                                    }}
+                                >
+                                    <Box>
+                                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                                            {topic.name}
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                            {topic.domain}
+                                        </Typography>
+                                    </Box>
+                                </Button>
+                            ))}
+                        </Box>
+                    </Box>
+                </>
                 ) : null}
             </Box>
         </Box>
