@@ -6,7 +6,7 @@ import { getTopicsForCluster, getClustersBySubject } from '../lib/data';
 import { ClusterCard as MuiClusterCard } from './MuiCards';
 
 export function ClusterGrid() {
-    const { clusters, topics, selectedSubject, selectedCluster, selectCluster, selectSubject } = useAppStore();
+    const { clusters, topics, selectedSubject, selectedCluster, selectCluster, selectSubject, sidebarOpen } = useAppStore();
 
     let displayClusters = clusters;
     if (selectedSubject) {
@@ -77,7 +77,14 @@ export function ClusterGrid() {
             </Box>
 
             {/* Clusters Grid */}
-            <Box sx={{ p: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
+            <Box sx={{
+                p: 2,
+                display: 'grid',
+                gridTemplateColumns: sidebarOpen
+                    ? 'repeat(2, 1fr)'
+                    : 'repeat(4, 1fr)',
+                gap: 3
+            }}>
                 {displayClusters.map((cluster, idx) => {
                     const topicsInCluster = getTopicsForCluster(topics, cluster);
                     const isSelected =

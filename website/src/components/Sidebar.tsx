@@ -152,8 +152,8 @@ export function Sidebar() {
     return (
         <Box
             sx={{
-                width: '384px',
-                minWidth: '384px',
+                width: '640px',
+                minWidth: '640px',
                 height: '100%',
                 bgcolor: 'background.paper',
                 borderLeft: '1px solid',
