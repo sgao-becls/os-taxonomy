@@ -6,30 +6,72 @@ import { SubjectCard as MuiSubjectCard } from './MuiCards';
 // Mapping subjects to emojis
 const subjectEmojis: Record<string, string> = {
     Mathematics: '🔢',
+    数学: '🔢',
     Science: '🔬',
+    科学: '🔬',
     English: '📖',
+    英语: '📖',
     History: '🏛️',
+    历史: '🏛️',
     Computing: '💻',
+    计算: '💻',
     'Life Skills': '🎯',
+    生活技能: '🎯',
     'Learning to Learn': '🧠',
+    学会学习: '🧠',
     'Personal & Social Development': '🤝',
+    '个人与社会发展': '🤝',
 };
 
 // Mapping subjects to gradients (in CSS format for MUI)
 const subjectGradients: Record<string, string> = {
     Computing: 'linear-gradient(90deg, #60a5fa, #2563eb)',
+    计算: 'linear-gradient(90deg, #60a5fa, #2563eb)',
     English: 'linear-gradient(90deg, #10b981, #059669)',
+    英语: 'linear-gradient(90deg, #10b981, #059669)',
     History: 'linear-gradient(90deg, #fbbf24, #f59e0b)',
+    历史: 'linear-gradient(90deg, #fbbf24, #f59e0b)',
     'Learning to Learn': 'linear-gradient(90deg, #c084fc, #a855f7)',
+    学会学习: 'linear-gradient(90deg, #c084fc, #a855f7)',
     'Life Skills': 'linear-gradient(90deg, #f472b6, #ec4899)',
+    生活技能: 'linear-gradient(90deg, #f472b6, #ec4899)',
     Mathematics: 'linear-gradient(90deg, #f87171, #dc2626)',
+    数学: 'linear-gradient(90deg, #f87171, #dc2626)',
     'Personal & Social Development': 'linear-gradient(90deg, #22d3ee, #0891b2)',
+    '个人与社会发展': 'linear-gradient(90deg, #22d3ee, #0891b2)',
     Science: 'linear-gradient(90deg, #fb923c, #f97316)',
+    科学: 'linear-gradient(90deg, #fb923c, #f97316)',
+};
+
+const subjectOrder: Record<string, number> = {
+    Computing: 1,
+    计算: 1,
+    English: 2,
+    英语: 2,
+    History: 3,
+    历史: 3,
+    'Learning to Learn': 4,
+    学会学习: 4,
+    'Life Skills': 5,
+    生活技能: 5,
+    Mathematics: 6,
+    数学: 6,
+    'Personal & Social Development': 7,
+    '个人与社会发展': 7,
+    Science: 8,
+    科学: 8,
 };
 
 export function SubjectsGrid() {
     const { topics, selectSubject } = useAppStore();
-    const subjects = getSubjects(topics);
+    const subjects = getSubjects(topics).sort((a, b) => {
+        const orderA = subjectOrder[a] ?? 999;
+        const orderB = subjectOrder[b] ?? 999;
+        if (orderA !== orderB) {
+            return orderA - orderB;
+        }
+        return a.localeCompare(b);
+    });
 
     console.log('[SubjectsGrid] topics count:', topics.length, 'subjects count:', subjects.length);
 

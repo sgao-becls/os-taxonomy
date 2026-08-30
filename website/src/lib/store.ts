@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Topic, Dependency, Cluster } from '../types';
+import type { Topic, Dependency, Cluster, AppLanguage } from '../types';
 import {
     loadTopics,
     loadDependencies,
@@ -19,6 +19,7 @@ interface AppStore {
     dependentMap: Map<string, Dependency[]>;
     isLoading: boolean;
     error: string | null;
+    language: AppLanguage;
 
     // UI State
     selectedSubject: string | null;
@@ -29,7 +30,8 @@ interface AppStore {
     sidebarOpen: boolean;
 
     // Actions
-    loadData: () => Promise<void>;
+    loadData: (language?: AppLanguage) => Promise<void>;
+    setLanguage: (language: AppLanguage) => Promise<void>;
     selectSubject: (subject: string | null) => void;
     selectCluster: (cluster: Cluster | null) => void;
     selectTopic: (topic: Topic | null) => void;
@@ -60,6 +62,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     dependentMap: new Map(),
     isLoading: false,
     error: null,
+    language: 'en',
 
     selectedSubject: null,
     selectedCluster: null,
@@ -69,15 +72,16 @@ export const useAppStore = create<AppStore>((set, get) => ({
     sidebarOpen: false,
 
     // Actions
-    loadData: async () => {
+    loadData: async (languageOverride) => {
         console.log('[Store] loadData called');
         set({ isLoading: true, error: null });
         try {
+            const language = languageOverride ?? get().language;
             console.log('[Store] fetching topics...');
             const [topics, dependencies, clusters] = await Promise.all([
-                loadTopics(),
-                loadDependencies(),
-                loadClusters(),
+                loadTopics(language),
+                loadDependencies(language),
+                loadClusters(language),
             ]);
 
             console.log('[Store] data loaded:', { topicsCount: topics.length, dependenciesCount: dependencies.length, clustersCount: clusters.length });
@@ -94,6 +98,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
                 topicsById,
                 prerequisiteMap,
                 dependentMap,
+                language,
                 isLoading: false,
             });
             console.log('[Store] state set complete, isLoading should be false now');
@@ -103,6 +108,30 @@ export const useAppStore = create<AppStore>((set, get) => ({
                 error: error instanceof Error ? error.message : 'Failed to load data',
                 isLoading: false,
             });
+            throw error;
+        }
+    },
+
+    setLanguage: async (language) => {
+        const previous = get().language;
+        if (previous === language) {
+            return;
+        }
+
+        set({
+            selectedSubject: null,
+            selectedCluster: null,
+            selectedTopic: null,
+            searchQuery: '',
+            searchResults: [],
+            sidebarOpen: false,
+            error: null,
+        });
+
+        try {
+            await get().loadData(language);
+        } catch {
+            set({ language: previous });
         }
     },
 

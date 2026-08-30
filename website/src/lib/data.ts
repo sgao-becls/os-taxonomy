@@ -1,40 +1,51 @@
-import type { Topic, Dependency, Cluster } from '../types';
+import type { Topic, Dependency, Cluster, AppLanguage } from '../types';
 
 const DATA_URL_BASE = '/data';
 
-export async function loadTopics(): Promise<Topic[]> {
+async function loadByLanguage<T>(language: AppLanguage, fileName: string): Promise<T> {
+    const localizedUrl = `${DATA_URL_BASE}/${language}/${fileName}`;
+    const fallbackUrl = `${DATA_URL_BASE}/${fileName}`;
+
+    const localized = await fetch(localizedUrl);
+    if (localized.ok) {
+        return localized.json() as Promise<T>;
+    }
+
+    const fallback = await fetch(fallbackUrl);
+    if (!fallback.ok) {
+        throw new Error(`HTTP ${fallback.status}`);
+    }
+
+    return fallback.json() as Promise<T>;
+}
+
+export async function loadTopics(language: AppLanguage = 'en'): Promise<Topic[]> {
     try {
-        const response = await fetch(`${DATA_URL_BASE}/topics.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+        const data = await loadByLanguage<{ topics: Topic[] }>(language, 'topics.json');
         return data.topics || [];
     } catch (error) {
         console.error('Failed to load topics:', error);
-        return [];
+        throw error;
     }
 }
 
-export async function loadDependencies(): Promise<Dependency[]> {
+export async function loadDependencies(language: AppLanguage = 'en'): Promise<Dependency[]> {
     try {
-        const response = await fetch(`${DATA_URL_BASE}/dependencies.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+        const data = await loadByLanguage<{ dependencies: Dependency[] }>(language, 'dependencies.json');
         return data.dependencies || [];
     } catch (error) {
         console.error('Failed to load dependencies:', error);
-        return [];
+        throw error;
     }
 }
 
-export async function loadClusters(): Promise<Cluster[]> {
+export async function loadClusters(language: AppLanguage = 'en'): Promise<Cluster[]> {
     try {
-        const response = await fetch(`${DATA_URL_BASE}/clusters.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+        const data = await loadByLanguage<{ clusters: Cluster[] }>(language, 'clusters.json');
         return data.clusters || [];
     } catch (error) {
         console.error('Failed to load clusters:', error);
-        return [];
+        throw error;
     }
 }
 

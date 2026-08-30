@@ -3,12 +3,12 @@ import { Box, TextField, InputAdornment } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 
 export function SearchBar() {
-    const { searchQuery, setSearchQuery } = useAppStore();
+    const { searchQuery, setSearchQuery, language } = useAppStore();
 
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
             <TextField
-                placeholder="Search topics..."
+                placeholder={language === 'zh' ? '搜索主题...' : 'Search topics...'}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 size="small"

@@ -27,6 +27,8 @@ export interface Cluster {
     summary: string;
 }
 
+export type AppLanguage = 'en' | 'zh';
+
 export interface AppState {
     topics: Topic[];
     dependencies: Dependency[];
