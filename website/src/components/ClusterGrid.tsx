@@ -4,6 +4,41 @@ import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useAppStore } from '../lib/store';
 import { getTopicsForCluster, getClustersBySubject } from '../lib/data';
 import { ClusterCard as MuiClusterCard } from './MuiCards';
+import type { Cluster, Topic } from '../types';
+
+function buildFallbackClustersForSubject(topics: Topic[], subject: string): Cluster[] {
+    const topicGroups = new Map<string, Topic[]>();
+
+    topics
+        .filter(t => t.subject === subject)
+        .forEach(topic => {
+            const key = `${topic.domain}::${topic.ageRangeStart}`;
+            if (!topicGroups.has(key)) {
+                topicGroups.set(key, []);
+            }
+            topicGroups.get(key)!.push(topic);
+        });
+
+    return Array.from(topicGroups.entries())
+        .map(([key, group]) => {
+            const [domain, ageRangeStartRaw] = key.split('::');
+            const topTopic = [...group].sort((a, b) => b.centrality - a.centrality)[0];
+
+            return {
+                subject,
+                domain,
+                ageRangeStart: Number(ageRangeStartRaw),
+                // Reuse the most central topic description as a readable fallback summary.
+                summary: topTopic?.description || '',
+            } as Cluster;
+        })
+        .sort((a, b) => {
+            if (a.ageRangeStart !== b.ageRangeStart) {
+                return a.ageRangeStart - b.ageRangeStart;
+            }
+            return a.domain.localeCompare(b.domain);
+        });
+}
 
 export function ClusterGrid() {
     const { clusters, topics, selectedSubject, selectedCluster, selectCluster, selectSubject, sidebarOpen } = useAppStore();
@@ -13,8 +48,14 @@ export function ClusterGrid() {
         if (!selectedSubject) {
             return clusters;
         }
-        return getClustersBySubject(clusters, selectedSubject);
-    }, [clusters, selectedSubject]);
+
+        const filtered = getClustersBySubject(clusters, selectedSubject);
+        if (filtered.length > 0) {
+            return filtered;
+        }
+
+        return buildFallbackClustersForSubject(topics, selectedSubject);
+    }, [clusters, selectedSubject, topics]);
 
     useEffect(() => {
         if (!selectedCluster) {
