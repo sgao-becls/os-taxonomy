@@ -73,8 +73,6 @@ export function SubjectsGrid() {
         return a.localeCompare(b);
     });
 
-    console.log('[SubjectsGrid] topics count:', topics.length, 'subjects count:', subjects.length);
-
     // Count topics by subject
     const topicsBySubject = new Map<string, number>();
     subjects.forEach(s => {

@@ -73,24 +73,18 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
     // Actions
     loadData: async (languageOverride) => {
-        console.log('[Store] loadData called');
         set({ isLoading: true, error: null });
         try {
             const language = languageOverride ?? get().language;
-            console.log('[Store] fetching topics...');
             const [topics, dependencies, clusters] = await Promise.all([
                 loadTopics(language),
                 loadDependencies(language),
                 loadClusters(language),
             ]);
 
-            console.log('[Store] data loaded:', { topicsCount: topics.length, dependenciesCount: dependencies.length, clustersCount: clusters.length });
-
             const topicsById = buildTopicsByIdMap(topics);
             const prerequisiteMap = buildDependencyMap(dependencies);
             const dependentMap = buildReverseDependencyMap(dependencies);
-
-            console.log('[Store] setting state with data');
             set({
                 topics,
                 dependencies,
@@ -101,7 +95,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
                 language,
                 isLoading: false,
             });
-            console.log('[Store] state set complete, isLoading should be false now');
         } catch (error) {
             console.error('[Store] error loading data:', error);
             set({
@@ -193,7 +186,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
             set({
                 selectedSubject: mappedSubject,
-                selectedCluster: mappedSelectedTopic ? mappedCluster : mappedCluster,
+                selectedCluster: mappedCluster,
                 selectedTopic: mappedSelectedTopic,
                 searchQuery: previousSearchQuery,
                 searchResults: restoredSearchResults,

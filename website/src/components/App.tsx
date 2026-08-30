@@ -16,12 +16,9 @@ export function App() {
         void setLanguage(event.target.value as AppLanguage);
     };
 
-    console.log('[App] rendering, isLoading:', isLoading, 'error:', error, 'selectedSubject:', selectedSubject);
-
     useEffect(() => {
         if (!initRef.current) {
             initRef.current = true;
-            console.log('[App] useEffect called, calling loadData');
             loadData();
         }
     }, [loadData]);
