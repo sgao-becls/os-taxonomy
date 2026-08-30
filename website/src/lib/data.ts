@@ -1,10 +1,11 @@
 import type { Topic, Dependency, Cluster } from '../types';
 
-const DATA_URL_BASE = '../../data';
+const DATA_URL_BASE = '/data';
 
 export async function loadTopics(): Promise<Topic[]> {
     try {
         const response = await fetch(`${DATA_URL_BASE}/topics.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         return data.topics || [];
     } catch (error) {
@@ -16,6 +17,7 @@ export async function loadTopics(): Promise<Topic[]> {
 export async function loadDependencies(): Promise<Dependency[]> {
     try {
         const response = await fetch(`${DATA_URL_BASE}/dependencies.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         return data.dependencies || [];
     } catch (error) {
@@ -27,6 +29,7 @@ export async function loadDependencies(): Promise<Dependency[]> {
 export async function loadClusters(): Promise<Cluster[]> {
     try {
         const response = await fetch(`${DATA_URL_BASE}/clusters.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         return data.clusters || [];
     } catch (error) {

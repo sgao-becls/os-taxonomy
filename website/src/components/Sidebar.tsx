@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import type { Topic } from '../types';
+import { Button, Chip, Box, Typography, Divider } from '@mui/material';
 import { useAppStore } from '../lib/store';
 import { getTopicsForCluster } from '../lib/data';
 import { getAgeLabel } from '../lib/colors';
-import { Button, Badge } from './ui';
 
 interface DependencyListProps {
     dependencies: { strength: 'hard' | 'soft'; topic: Topic }[];
@@ -20,43 +20,90 @@ function DependencyList({ dependencies, title }: DependencyListProps) {
     }
 
     return (
-        <div className="border rounded-lg p-3 bg-gray-50">
-            <button
+        <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2, bgcolor: 'action.hover' }}>
+            <Button
                 onClick={() => setExpanded(!expanded)}
-                className="w-full text-left font-medium text-gray-900 hover:text-gray-700 flex items-center justify-between"
+                fullWidth
+                sx={{
+                    justifyContent: 'space-between',
+                    textTransform: 'none',
+                    textAlign: 'left',
+                    fontSize: '1rem',
+                    fontWeight: 500
+                }}
             >
-                <span>{title} ({dependencies.length})</span>
-                <span className="text-lg">{expanded ? '−' : '+'}</span>
-            </button>
+                <Typography sx={{ fontWeight: 500 }}>
+                    {title} ({dependencies.length})
+                </Typography>
+                <Typography>{expanded ? '−' : '+'}</Typography>
+            </Button>
 
             {expanded && (
-                <div className="mt-3 space-y-2 max-h-96 overflow-y-auto">
+                <Box sx={{ mt: 2, maxHeight: '24rem', overflowY: 'auto' }}>
                     {hardDeps.length > 0 && (
-                        <div>
-                            <div className="text-xs font-semibold text-red-700 mb-2">Required (Hard Dependencies)</div>
-                            {hardDeps.map(dep => (
-                                <div key={dep.topic.id} className="text-sm p-2 bg-white rounded border border-red-100 mb-1 hover:bg-red-50">
-                                    <div className="font-medium text-gray-900">{dep.topic.name}</div>
-                                    <div className="text-xs text-gray-600 mt-1">{getAgeLabel(dep.topic.ageRangeStart, dep.topic.ageRangeEnd)}</div>
-                                </div>
-                            ))}
-                        </div>
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="caption" sx={{ fontWeight: 600, color: 'error.main', mb: 1 }}>
+                                Required (Hard Dependencies)
+                            </Typography>
+                            <Box sx={{ mt: 1 }}>
+                                {hardDeps.map(dep => (
+                                    <Box
+                                        key={dep.topic.id}
+                                        sx={{
+                                            p: 1.5,
+                                            bgcolor: 'background.paper',
+                                            borderRadius: 0.5,
+                                            border: '1px solid',
+                                            borderColor: 'error.light',
+                                            mb: 1,
+                                            '&:hover': { bgcolor: 'error.lighter' }
+                                        }}
+                                    >
+                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            {dep.topic.name}
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                                            {getAgeLabel(dep.topic.ageRangeStart, dep.topic.ageRangeEnd)}
+                                        </Typography>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
                     )}
 
                     {softDeps.length > 0 && (
-                        <div>
-                            <div className="text-xs font-semibold text-orange-700 mb-2">Recommended (Soft Dependencies)</div>
-                            {softDeps.map(dep => (
-                                <div key={dep.topic.id} className="text-sm p-2 bg-white rounded border border-orange-100 mb-1 hover:bg-orange-50">
-                                    <div className="font-medium text-gray-900">{dep.topic.name}</div>
-                                    <div className="text-xs text-gray-600 mt-1">{getAgeLabel(dep.topic.ageRangeStart, dep.topic.ageRangeEnd)}</div>
-                                </div>
-                            ))}
-                        </div>
+                        <Box>
+                            <Typography variant="caption" sx={{ fontWeight: 600, color: 'warning.main', mb: 1 }}>
+                                Recommended (Soft Dependencies)
+                            </Typography>
+                            <Box sx={{ mt: 1 }}>
+                                {softDeps.map(dep => (
+                                    <Box
+                                        key={dep.topic.id}
+                                        sx={{
+                                            p: 1.5,
+                                            bgcolor: 'background.paper',
+                                            borderRadius: 0.5,
+                                            border: '1px solid',
+                                            borderColor: 'warning.light',
+                                            mb: 1,
+                                            '&:hover': { bgcolor: 'warning.lighter' }
+                                        }}
+                                    >
+                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            {dep.topic.name}
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                                            {getAgeLabel(dep.topic.ageRangeStart, dep.topic.ageRangeEnd)}
+                                        </Typography>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
                     )}
-                </div>
+                </Box>
             )}
-        </div>
+        </Box>
     );
 }
 
@@ -103,72 +150,128 @@ export function Sidebar() {
     }
 
     return (
-        <div className="fixed right-0 top-0 h-full w-96 bg-white border-l border-gray-200 shadow-lg overflow-y-auto z-20">
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-                <h2 className="font-bold text-lg text-gray-900">Details</h2>
-                <button
+        <Box
+            sx={{
+                width: '384px',
+                minWidth: '384px',
+                height: '100%',
+                bgcolor: 'background.paper',
+                borderLeft: '1px solid',
+                borderColor: 'divider',
+                boxShadow: 'lg',
+                display: 'flex',
+                flexDirection: 'column'
+            }}
+        >
+            <Box
+                sx={{
+                    position: 'sticky',
+                    top: 0,
+                    bgcolor: 'background.paper',
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    p: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexShrink: 0
+                }}
+            >
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    Details
+                </Typography>
+                <Button
                     onClick={() => setSidebarOpen(false)}
-                    className="p-1 hover:bg-gray-100 rounded"
+                    sx={{ p: 0.5, minWidth: 'auto' }}
                 >
                     ✕
-                </button>
-            </div>
+                </Button>
+            </Box>
 
-            <div className="p-4 space-y-4">
+            <Box
+                sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    overflowY: 'auto',
+                    flex: 1
+                }}
+            >
                 {selectedTopic ? (
                     // Topic Details
                     <>
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <Badge>{selectedTopic.subject}</Badge>
-                                <Badge>{getAgeLabel(selectedTopic.ageRangeStart, selectedTopic.ageRangeEnd)}</Badge>
-                            </div>
-                            <h3 className="text-2xl font-bold text-gray-900">{selectedTopic.name}</h3>
-                            <p className="text-sm text-gray-600 mt-2">{selectedTopic.domain}</p>
-                        </div>
+                        <Box>
+                            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                                <Chip label={selectedTopic.subject} size="small" color="primary" variant="filled" />
+                                <Chip label={getAgeLabel(selectedTopic.ageRangeStart, selectedTopic.ageRangeEnd)} size="small" />
+                            </Box>
+                            <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                {selectedTopic.name}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                {selectedTopic.domain}
+                            </Typography>
+                        </Box>
 
-                        <div className="border-t pt-4">
-                            <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
-                            <p className="text-sm text-gray-700">{selectedTopic.description}</p>
-                        </div>
+                        <Divider />
+
+                        <Box>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                Description
+                            </Typography>
+                            <Typography variant="body2">
+                                {selectedTopic.description}
+                            </Typography>
+                        </Box>
 
                         {selectedTopic.evidence.length > 0 && (
-                            <div className="border-t pt-4">
-                                <h4 className="font-semibold text-gray-900 mb-2">Evidence of Mastery</h4>
-                                <ul className="space-y-2">
+                            <Box>
+                                <Divider />
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, mt: 2 }}>
+                                    Evidence of Mastery
+                                </Typography>
+                                <Box component="ul" sx={{ pl: 2, m: 0 }}>
                                     {selectedTopic.evidence.map((e, idx) => (
-                                        <li key={idx} className="text-sm text-gray-700 flex gap-2">
-                                            <span className="text-blue-600 font-bold">•</span>
-                                            <span>{e}</span>
-                                        </li>
+                                        <Typography
+                                            component="li"
+                                            key={idx}
+                                            variant="body2"
+                                            sx={{ mb: 1, listStyleType: 'disc', color: 'text.secondary' }}
+                                        >
+                                            {e}
+                                        </Typography>
                                     ))}
-                                </ul>
-                            </div>
+                                </Box>
+                            </Box>
                         )}
 
                         {(prerequisites.length > 0 || dependents.length > 0) && (
-                            <div className="border-t pt-4">
-                                <button
+                            <Box sx={{ pt: 2 }}>
+                                <Divider />
+                                <Button
+                                    fullWidth
                                     onClick={() => setShowDeps(!showDeps)}
-                                    className="w-full text-left font-semibold text-gray-900 hover:text-gray-700 flex items-center justify-between mb-3"
+                                    sx={{ justifyContent: 'space-between', mt: 2, textTransform: 'none', fontSize: '1rem' }}
                                 >
-                                    <span>Dependencies</span>
-                                    <span className="text-lg">{showDeps ? '−' : '+'}</span>
-                                </button>
+                                    <Typography sx={{ fontWeight: 600 }}>Dependencies</Typography>
+                                    <Typography>{showDeps ? '−' : '+'}</Typography>
+                                </Button>
 
                                 {showDeps && (
-                                    <div className="space-y-3">
+                                    <Box sx={{ mt: 2, space: 2 }}>
                                         <DependencyList dependencies={prerequisites} title="Must Learn First" />
                                         <DependencyList dependencies={dependents} title="Unlocks Next" />
-                                    </div>
+                                    </Box>
                                 )}
-                            </div>
+                            </Box>
                         )}
 
                         <Button
                             onClick={() => selectTopic(null)}
-                            variant="outline"
-                            className="w-full"
+                            variant="outlined"
+                            fullWidth
+                            sx={{ mt: 2 }}
                         >
                             Back to Cluster
                         </Button>
@@ -176,39 +279,64 @@ export function Sidebar() {
                 ) : selectedCluster ? (
                     // Cluster Details
                     <>
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <Badge>{selectedCluster.subject}</Badge>
-                                <Badge>{getAgeLabel(selectedCluster.ageRangeStart, selectedCluster.ageRangeStart + 1)}</Badge>
-                            </div>
-                            <h3 className="text-2xl font-bold text-gray-900">{selectedCluster.domain}</h3>
-                        </div>
+                        <Box>
+                            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                                <Chip label={selectedCluster.subject} size="small" color="primary" variant="filled" />
+                                <Chip label={getAgeLabel(selectedCluster.ageRangeStart, selectedCluster.ageRangeStart + 1)} size="small" />
+                            </Box>
+                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                                {selectedCluster.domain}
+                            </Typography>
+                        </Box>
 
-                        <div className="border-t pt-4">
-                            <h4 className="font-semibold text-gray-900 mb-2">Overview</h4>
-                            <p className="text-sm text-gray-700">{selectedCluster.summary}</p>
-                        </div>
+                        <Divider />
 
-                        <div className="border-t pt-4">
-                            <h4 className="font-semibold text-gray-900 mb-3">
+                        <Box>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                Overview
+                            </Typography>
+                            <Typography variant="body2">
+                                {selectedCluster.summary}
+                            </Typography>
+                        </Box>
+
+                        <Divider />
+
+                        <Box>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
                                 Topics ({topicsInCluster.length})
-                            </h4>
-                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, maxHeight: '24rem', overflow: 'y', overflowY: 'auto' }}>
                                 {topicsInCluster.map(topic => (
-                                    <button
+                                    <Button
                                         key={topic.id}
                                         onClick={() => selectTopic(topic)}
-                                        className="w-full text-left p-3 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
+                                        sx={{
+                                            justifyContent: 'flex-start',
+                                            textAlign: 'left',
+                                            py: 1.5,
+                                            px: 2,
+                                            textTransform: 'none',
+                                            color: 'text.primary',
+                                            bgcolor: 'action.hover',
+                                            '&:hover': { bgcolor: 'action.selected' }
+                                        }}
                                     >
-                                        <div className="font-medium text-gray-900 text-sm mb-1">{topic.name}</div>
-                                        <div className="text-xs text-gray-600">{topic.domain}</div>
-                                    </button>
+                                        <Box>
+                                            <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                                                {topic.name}
+                                            </Typography>
+                                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                                {topic.domain}
+                                            </Typography>
+                                        </Box>
+                                    </Button>
                                 ))}
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     </>
                 ) : null}
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 }

@@ -1,6 +1,6 @@
+import { Box, Button, ButtonGroup } from '@mui/material';
 import { useAppStore } from '../lib/store';
 import { getSubjects } from '../lib/data';
-import { getSubjectColor } from '../lib/colors';
 
 export function SubjectSelector() {
     const { topics, selectedSubject, selectSubject, selectCluster } = useAppStore();
@@ -11,35 +11,58 @@ export function SubjectSelector() {
     }
 
     return (
-        <div className="flex gap-2 overflow-x-auto pb-2 px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
-            <button
+        <Box
+            sx={{
+                display: 'flex',
+                gap: 1,
+                overflowX: 'auto',
+                pb: 1,
+                px: 2,
+                py: 1.5,
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'background.paper',
+                sticky: 'top',
+                zIndex: 10,
+                '&::-webkit-scrollbar': {
+                    height: '4px'
+                },
+                '&::-webkit-scrollbar-track': {
+                    bgcolor: 'transparent'
+                },
+                '&::-webkit-scrollbar-thumb': {
+                    bgcolor: 'divider',
+                    borderRadius: '2px'
+                }
+            }}
+        >
+            <Button
                 onClick={() => {
                     selectSubject(null);
                     selectCluster(null);
                 }}
-                className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${selectedSubject === null
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                variant={selectedSubject === null ? 'contained' : 'outlined'}
+                size="small"
+                sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
             >
                 All Subjects
-            </button>
+            </Button>
 
             {subjects.map(subject => (
-                <button
+                <Button
                     key={subject}
                     onClick={() => {
                         selectSubject(subject);
                         selectCluster(null);
                     }}
-                    className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${selectedSubject === subject
-                            ? getSubjectColor(subject).text + ' ' + getSubjectColor(subject).bg + ' border-2'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
+                    variant={selectedSubject === subject ? 'contained' : 'outlined'}
+                    color={selectedSubject === subject ? 'primary' : 'inherit'}
+                    size="small"
+                    sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
                 >
                     {subject}
-                </button>
+                </Button>
             ))}
-        </div>
+        </Box>
     );
 }
