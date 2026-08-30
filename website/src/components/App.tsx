@@ -65,17 +65,21 @@ export function App() {
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-xl border-b border-slate-700">
-                    <div className="px-8 py-6 pr-16 flex items-start justify-between gap-4">
-                        <div>
-                            <h1 className="text-3xl font-bold">Marble Skill Taxonomy</h1>
-                            <p className="text-cyan-100 mt-1">Explore 1,590 micro-topics across 8 subjects</p>
+                    <div className="px-8 py-5 pr-12 flex items-center gap-6">
+                        <div className="shrink-0">
+                            <h1 className="m-0 text-3xl font-bold leading-tight">Marble Skill Taxonomy</h1>
+                            <p className="m-0 mt-0.5 text-cyan-100 leading-snug">Explore 1,590 micro-topics across 8 subjects</p>
+                        </div>
+                        <div className="flex-1 min-w-0 max-w-2xl">
+                            <SearchBar />
                         </div>
                         <FormControl
                             size="small"
                             sx={{
                                 minWidth: 160,
-                                mt: 3,
-                                mr: 3,
+                                mt: 0,
+                                mr: 1,
+                                ml: 'auto',
                                 '& .MuiInputLabel-root': {
                                     color: 'rgba(224, 242, 254, 0.95)',
                                     px: 0.5,
@@ -105,13 +109,6 @@ export function App() {
                                 <MenuItem value="zh">中文</MenuItem>
                             </Select>
                         </FormControl>
-                    </div>
-                </div>
-
-                {/* Search Bar */}
-                <div className="bg-slate-900 border-b border-slate-700 shadow-md">
-                    <div className="px-8 py-4">
-                        <SearchBar />
                     </div>
                 </div>
 
