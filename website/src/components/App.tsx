@@ -65,7 +65,7 @@ export function App() {
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-xl border-b border-slate-700">
-                    <div className="px-8 py-6 flex items-start justify-between gap-4">
+                    <div className="px-8 py-6 pr-16 flex items-start justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold">Marble Skill Taxonomy</h1>
                             <p className="text-cyan-100 mt-1">Explore 1,590 micro-topics across 8 subjects</p>
@@ -74,7 +74,16 @@ export function App() {
                             size="small"
                             sx={{
                                 minWidth: 160,
-                                '& .MuiInputLabel-root': { color: 'rgba(224, 242, 254, 0.95)' },
+                                mt: 3,
+                                mr: 3,
+                                '& .MuiInputLabel-root': {
+                                    color: 'rgba(224, 242, 254, 0.95)',
+                                    px: 0.5,
+                                    bgcolor: 'rgba(37, 99, 235, 0.85)',
+                                },
+                                '& .MuiInputLabel-shrink': {
+                                    bgcolor: 'rgba(37, 99, 235, 0.95)',
+                                },
                                 '& .MuiOutlinedInput-root': {
                                     color: 'white',
                                     bgcolor: 'rgba(15, 23, 42, 0.28)',
