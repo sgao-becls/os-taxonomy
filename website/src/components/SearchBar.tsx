@@ -1,20 +1,49 @@
 import { useAppStore } from '../lib/store';
+import { Box, TextField, InputAdornment } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
 
 export function SearchBar() {
     const { searchQuery, setSearchQuery } = useAppStore();
 
     return (
-        <div className="flex items-center gap-2">
-            <svg className="text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '20px', height: '20px', minWidth: '20px', minHeight: '20px' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-                type="text"
-                placeholder="Search topics, domains, descriptions..."
+        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <TextField
+                placeholder="Search topics..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="flex-1 bg-slate-800 text-white placeholder-gray-500 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors"
+                size="small"
+                sx={{
+                    width: '100%',
+                    maxWidth: '500px',
+                    '& .MuiOutlinedInput-root': {
+                        color: 'white',
+                        backgroundColor: 'rgba(30, 41, 59, 0.8)',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(100, 116, 139, 0.3)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            backgroundColor: 'rgba(30, 41, 59, 1)',
+                            borderColor: 'rgba(100, 116, 139, 0.6)',
+                        },
+                        '&.Mui-focused': {
+                            backgroundColor: 'rgba(30, 41, 59, 1)',
+                            borderColor: '#2563eb',
+                            boxShadow: '0 0 0 3px rgba(37, 99, 235, 0.1)',
+                        },
+                    },
+                    '& .MuiOutlinedInput-input::placeholder': {
+                        color: 'rgba(203, 213, 225, 0.7)',
+                        opacity: 1,
+                    },
+                }}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon sx={{ color: 'rgba(203, 213, 225, 0.8)', fontSize: 20 }} />
+                        </InputAdornment>
+                    ),
+                }}
             />
-        </div>
+        </Box>
     );
 }

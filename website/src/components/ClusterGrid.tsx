@@ -1,11 +1,12 @@
 import type { Cluster } from '../types';
-import { Grid, Box, Typography } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useAppStore } from '../lib/store';
 import { getTopicsForCluster, getClustersBySubject } from '../lib/data';
 import { ClusterCard as MuiClusterCard } from './MuiCards';
 
 export function ClusterGrid() {
-    const { clusters, topics, selectedSubject, selectedCluster, selectCluster } = useAppStore();
+    const { clusters, topics, selectedSubject, selectedCluster, selectCluster, selectSubject } = useAppStore();
 
     let displayClusters = clusters;
     if (selectedSubject) {
@@ -28,8 +29,55 @@ export function ClusterGrid() {
     }
 
     return (
-        <Box sx={{ p: 2 }}>
-            <Grid container spacing={2}>
+        <Box>
+            {/* Navigation/Breadcrumb */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    px: 2,
+                    py: 2,
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                }}
+            >
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => {
+                        selectSubject(null);
+                        selectCluster(null);
+                    }}
+                    size="small"
+                    sx={{
+                        textTransform: 'none',
+                        color: 'primary.main',
+                        '&:hover': {
+                            bgcolor: 'action.hover',
+                        }
+                    }}
+                >
+                    Back to Subjects
+                </Button>
+
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    /
+                </Typography>
+
+                <Typography
+                    variant="h6"
+                    sx={{
+                        fontWeight: 600,
+                        color: 'white'
+                    }}
+                >
+                    {selectedSubject}
+                </Typography>
+            </Box>
+
+            {/* Clusters Grid */}
+            <Box sx={{ p: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
                 {displayClusters.map((cluster, idx) => {
                     const topicsInCluster = getTopicsForCluster(topics, cluster);
                     const isSelected =
@@ -38,23 +86,16 @@ export function ClusterGrid() {
                         selectedCluster?.ageRangeStart === cluster.ageRangeStart;
 
                     return (
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                            md={4}
+                        <MuiClusterCard
                             key={`${cluster.subject}-${cluster.domain}-${cluster.ageRangeStart}-${idx}`}
-                        >
-                            <MuiClusterCard
-                                cluster={cluster}
-                                topicCount={topicsInCluster.length}
-                                isSelected={isSelected}
-                                onClick={() => selectCluster(cluster)}
-                            />
-                        </Grid>
+                            cluster={cluster}
+                            topicCount={topicsInCluster.length}
+                            isSelected={isSelected}
+                            onClick={() => selectCluster(cluster)}
+                        />
                     );
                 })}
-            </Grid>
+            </Box>
         </Box>
     );
 }
